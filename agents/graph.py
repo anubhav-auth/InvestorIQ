@@ -116,10 +116,11 @@ def run_analyst(query: str):
     The main entry point for running the multi-agent system.
     """
     print(f"\n--- Running Analyst for query: '{query}' ---")
-    
     research_result = graph.invoke({"messages": [HumanMessage(content=query)]})
-
     final_report = writer.invoke({"messages": research_result['messages']})
-    
     print("--- Analyst run complete. ---")
-    return final_report.content
+
+    report_content = final_report.content
+    if isinstance(report_content, list):
+        return "".join(str(part) for part in report_content)
+    return str(report_content)

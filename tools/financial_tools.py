@@ -2,17 +2,17 @@ import os
 import yfinance as yf
 from langchain_core.tools import tool
 from langchain_community.vectorstores import FAISS
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_community.embeddings import HuggingFaceEmbeddings 
 from dotenv import load_dotenv
 
 load_dotenv()
 
 FAISS_INDEX_PATH = "vector_stores/faiss_news_index"
+EMBEDDING_MODEL = "BAAI/bge-large-en-v1.5" 
 
-if not os.getenv("GOOGLE_API_KEY"):
-    raise ValueError("GOOGLE_API_KEY not found. Please set it in your .env file.")
-
-embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+print("Initializing local embedding model for tools...")
+embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
+print("Local embedding model for tools initialized.")
 
 
 @tool
@@ -24,18 +24,17 @@ def search_financial_news(query: str) -> str:
     about the information you are looking for.
     """
     print(f"Tool 'search_financial_news' called with query: {query}")
-    # The 'allow_dangerous_deserialization' is needed for FAISS with LangChain
     vector_store = FAISS.load_local(
-        FAISS_INDEX_PATH, 
-        embeddings, 
+        FAISS_INDEX_PATH,
+        embeddings,
         allow_dangerous_deserialization=True
     )
     retriever = vector_store.as_retriever()
     docs = retriever.invoke(query)
-    
+
     if not docs:
         return "No relevant financial news found for that query."
-        
+
     return "\n\n".join([doc.page_content for doc in docs])
 
 @tool
@@ -48,7 +47,7 @@ def get_stock_performance(ticker: str) -> str:
     print(f"Tool 'get_stock_performance' called with ticker: {ticker}")
     stock = yf.Ticker(ticker)
     hist = stock.history(period="1mo")
-    
+
     if hist.empty:
         return f"Could not find historical data for ticker {ticker}."
 
