@@ -1,0 +1,29 @@
+# requirements.txt
+
+# Core LLM & Orchestration
+langchain
+langchain-google-genai
+langchain-community
+langchain-core
+
+# Data Framework & Vector Store
+llama-index
+faiss-cpu # or faiss-gpu if you have a compatible GPU
+sentence-transformers # For the embedding model
+
+# Web Framework & API
+fastapi
+uvicorn
+pydantic
+python-dotenv
+requests
+
+# Tools & Data Sources
+yfinance
+beautifulsoup4 # For web scraping in LlamaIndex
+
+# Frontend
+streamlit
+
+# Evaluation
+ragas
