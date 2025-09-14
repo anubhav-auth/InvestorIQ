@@ -9,6 +9,7 @@ from ragas.metrics import (
 )
 from datasets import Dataset
 import sys
+import time
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from agents.graph import run_analyst
@@ -47,8 +48,10 @@ def create_evaluation_dataset():
 
     answers = []
     for q in questions:
+        print(f"--- Processing question: '{q}' ---")
         report = run_analyst(q)
         answers.append(report)
+        time.sleep(60)
 
     return Dataset.from_dict({
         "question": questions,

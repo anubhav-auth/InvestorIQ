@@ -10,7 +10,7 @@ An autonomous, multi-agent system that emulates the workflow of a financial anal
 
 -   **Multi-Agent System**: Utilizes a collaborative multi-agent framework where each agent has a distinct role, coordinated by a central manager.
 
--   **Data Ingestion**: Ingests and processes financial news, market data, and corporate filings.
+-   **Data Ingestion**: Ingests and processes financial news from local files.
 
 -   **Specialized Agents**: Includes a Financial News Researcher Agent and a Stock Data Analyst Agent.
 
@@ -27,13 +27,15 @@ An autonomous, multi-agent system that emulates the workflow of a financial anal
 | --- | --- |
 | **Orchestration** | LangChain |
 | **Data Framework** | LlamaIndex |
-| **Vector Store** | FAISS (`faiss-cpu` or `faiss-gpu`) |
+| **Vector Store** | FAISS (`faiss-cpu`) |
 | **Web Framework** | FastAPI |
 | **Embedding Model** | `BAAI/bge-large-en-v1.5` |
 | **LLM** | Gemini 2.5 Pro |
-| **Containerization** | Docker & Docker Compose |
+| **Containerization** | Docker |
 | **Frontend** | Streamlit |
 | **Evaluation** | RAGAS |
+
+Export to Sheets
 
 * * * * *
 
@@ -46,7 +48,7 @@ An autonomous, multi-agent system that emulates the workflow of a financial anal
 
 -   An environment with the required packages installed.
 
--   API keys for Google (for Gemini) and a news source (if you modify the ingestion script).
+-   A Google API key for Gemini.
 
 ### 1\. Clone the repository
 
@@ -71,7 +73,7 @@ pip install -r requirements.txt
 
 ### 3\. Set up your environment variables
 
-Create a `.env` file in the root directory and add your API keys:
+Create a `.env` file in the root directory and add your Google API key:
 
 ```
 GOOGLE_API_KEY="YOUR_GOOGLE_API_KEY"
@@ -118,31 +120,51 @@ Now, you can open your browser and navigate to the Streamlit URL (usually `http:
 🚢 Docker Deployment
 --------------------
 
-For a more robust and reproducible setup, you can use Docker and Docker Compose.
+For a more robust and reproducible setup, you can use Docker. The provided `Dockerfile` will set up the entire application, including the data ingestion.
 
-1.  **Build the Docker images:**
+1.  **Build the Docker image:**
 
-Bash
+    From the root of the project, run the following command:
 
-```
-docker-compose build
+    Bash
 
-```
+    ```
+    docker build -t market-insights-analyst .
 
-1.  **Run the containers:**
+    ```
 
-Bash
+2.  **Run the Docker container:**
 
-```
-docker-compose up
+    You'll need to pass your Google API key as an environment variable to the container.
 
-```
+    Bash
 
-This will start both the backend and frontend services. The Streamlit app will be available at `http://localhost:8501`.
+    ```
+    docker run -p 8000:8000 -p 8501:8501 -e GOOGLE_API_KEY="YOUR_GOOGLE_API_KEY" market-insights-analyst
+
+    ```
+
+This command will:
+
+-   Start the container.
+
+-   Expose port `8000` for the FastAPI backend and port `8501` for the Streamlit frontend.
+
+-   The `start.sh` script inside the container will run both the backend and frontend services.
+
+The Streamlit app will be available at `http://localhost:8501`.
 
 * * * * *
 
 🧪 Evaluation
 -------------
 
-The project includes a plan for evaluating the RAG pipeline using the RAGAS framework. You can create an evaluation script in the `evaluation` directory to measure metrics like **Faithfulness**, **Context Precision**, and **Answer Relevancy**. This will help you to quantitatively assess the performance of the system.
+The project includes a plan for evaluating the RAG pipeline using the RAGAS framework. You can run the evaluation script to measure metrics like **Faithfulness**, **Context Precision**, and **Answer Relevancy**. This helps to quantitatively assess the performance of the system.
+
+To run the evaluation:
+
+Bash
+
+```
+python evaluation/evaluate_rag.py
+```
